@@ -1,29 +1,29 @@
-# Aenu - Menu Plugin for AllayMC
+# 🎛️ Aenu - Menu Plugin for AllayMC
 
-A powerful, configurable menu plugin for AllayMC servers with full PlaceholderAPI support.
+✨ A powerful, configurable menu plugin for **AllayMC** servers with full **PlaceholderAPI** support.
 
-## Features
+## ✨ Features
 
-- **SimpleForm Menus** - Clean, intuitive menu interface
-- **YAML Configuration** - Easy-to-edit menu files
-- **PlaceholderAPI Integration** - Use placeholders in titles, content, commands, and messages
-- **Direct Messages** - Send messages directly to players without using commands
-- **Command Execution** - Execute commands when buttons are clicked
-- **Hot Reload** - Reload menus without restarting the server
-- **Permission System** - Control access to menus and buttons with permissions
-- **Button Images** - Support for custom button icons (path or URL)
+- 🧩 **SimpleForm Menus** – Clean, intuitive menu interface
+- 📝 **YAML Configuration** – Easy-to-edit menu files
+- 🔁 **PlaceholderAPI Integration** – Use placeholders in titles, content, commands, and messages
+- 💬 **Direct Messages** – Send messages directly to players without using commands
+- ⚡ **Command Execution** – Execute commands when buttons are clicked
+- ♻️ **Hot Reload** – Reload menus without restarting the server
+- 🔐 **Permission System** – Control access to menus and buttons with permissions
+- 🖼️ **Button Images** – Support for custom button icons (path or URL)
 
-## Installation
+## 📦 Installation
 
-1. Download the plugin JAR from the releases page
-2. Place it in your server's `plugins` folder
-3. Ensure **PlaceholderAPI** plugin is also installed
-4. Restart your server
-5. An example menu configuration will be automatically generated at `plugins/Aenu/example.yml`
-6. Edit or create your own menu files in the `plugins/Aenu/` folder
-7. Use `/menu reload` to reload menus after making changes
+1. ⬇️ Download the plugin JAR from the releases page
+2. 📁 Place it in your server's `plugins` folder
+3. ✅ Ensure **PlaceholderAPI** plugin is also installed
+4. 🔄 Restart your server
+5. 📄 An example menu configuration will be automatically generated at `plugins/Aenu/example.yml`
+6. ✏️ Edit or create your own menu files in the `plugins/Aenu/` folder
+7. 🔁 Use `/menu reload` to reload menus after making changes
 
-## Commands
+## ⌨️ Commands
 
 | Command                  | Description                    | Permission                 |
 |--------------------------|--------------------------------|----------------------------|
@@ -31,30 +31,31 @@ A powerful, configurable menu plugin for AllayMC servers with full PlaceholderAP
 | `/menu reload`           | Reload all menu configurations | `aenu.command.menu.reload` |
 | `/menu list`             | List all accessible menus      | `aenu.command.menu.list`   |
 
-## Menu Configuration
+## 🗂️ Menu Configuration
 
-Menus are stored as YAML files in the plugin data folder. Each file represents one menu.
+Menus are stored as **YAML** files in the plugin data folder.  
+Each file represents **one menu**.
 
-### Menu Configuration Options
+### ⚙️ Menu Configuration Options
 
 Each menu supports the following fields:
 
-- **title** - The menu title
-- **content** - The menu description text
-- **permission** (optional) - Permission required to open the menu
-- **buttons** - List of buttons in the menu
+- 🏷️ **title** – The menu title
+- 📜 **content** – The menu description text
+- 🔐 **permission** *(optional)* – Permission required to open the menu
+- 🔘 **buttons** – List of buttons in the menu
 
-### Button Configuration Options
+### 🔘 Button Configuration Options
 
 Each button supports the following fields:
 
-- **text** - The button display text
-- **permission** (optional) - Permission required to see this button
-- **messages** (optional) - List of messages to send to the player
-- **commands** (optional) - List of commands to execute
-- **image** (optional) - Button icon configuration
+- 📝 **text** – The button display text
+- 🔑 **permission** *(optional)* – Permission required to see this button
+- 💬 **messages** *(optional)* – List of messages to send to the player
+- ⚡ **commands** *(optional)* – List of commands to execute
+- 🖼️ **image** *(optional)* – Button icon configuration
 
-### Example Menu
+### 📘 Example Menu
 
 ```yaml
 # Menu title
@@ -98,20 +99,20 @@ buttons:
       - "§7You have been fully healed!"
     commands:
       - "effect \"{player_name}\" instant_health 1 255"
-```
+````
 
-## Permission System
+## 🔐 Permission System
 
-Aenu supports a flexible permission system for both menus and buttons.
+Aenu supports a **flexible permission system** for both menus and buttons.
 
-### Menu Permissions
+### 📂 Menu Permissions
 
 Restrict who can open specific menus by adding a `permission` field:
 
 ```yaml
 title: "Admin Menu"
 content: "Administrative tools"
-permission: "aenu.menu.admin"  # Only players with this permission can open
+permission: "aenu.menu.admin"
 
 buttons:
   - text: "Ban Player"
@@ -119,7 +120,7 @@ buttons:
       - "ban {player_name}"
 ```
 
-### Button Permissions
+### 🔘 Button Permissions
 
 Control which buttons players can see by adding permissions to individual buttons:
 
@@ -128,45 +129,40 @@ title: "Server Menu"
 content: "Choose an option:"
 
 buttons:
-  # Everyone can see this button
   - text: "Get Started Kit"
     commands:
       - "give \"{player_name}\" iron_sword 1"
 
-  # Only players with permission can see this
   - text: "§6[VIP] Diamond Kit"
     permission: "aenu.button.vip"
     commands:
       - "give \"{player_name}\" diamond_sword 1"
 
-  # Only players that has `aenu.button.admin` permission can see this
   - text: "§c[Admin] Creative Mode"
     permission: "aenu.button.admin"
     commands:
       - "gamemode creative \"{player_name}\""
 ```
 
-### How It Works
+### ⚙️ How It Works
 
-- **Menu Permission**: If a player doesn't have the menu permission, they get an error message when trying to open it
-- **Button Permission**: Buttons without permission are automatically hidden from players who don't have access
-- **No Permission Set**: If no permission is configured, everyone can access the menu/button
+- ✅ **Menu Permission** – Without permission, players receive an error when opening
+- ✅ **Button Permission** – Buttons are automatically hidden if access is denied
+- ✅ **No Permission Set** – Everyone can access the menu/button
 
-### Example: Tiered Access Menu
+### 🧱 Example: Tiered Access Menu
 
 ```yaml
 title: "Rank Shop"
 content: "Purchase items based on your rank!"
 
 buttons:
-  # Free for everyone
   - text: "Basic Kit"
     messages:
       - "§7You received the basic kit!"
     commands:
       - "give \"{player_name}\" stone_sword 1"
 
-  # VIP only
   - text: "§6VIP Kit"
     permission: "shop.vip"
     messages:
@@ -174,7 +170,6 @@ buttons:
     commands:
       - "give \"{player_name}\" iron_sword 1 {Enchantments:[{id:sharpness,lvl:2}]}"
 
-  # Premium only
   - text: "§bPremium Kit"
     permission: "shop.premium"
     messages:
@@ -183,95 +178,60 @@ buttons:
       - "give \"{player_name}\" diamond_sword 1 {Enchantments:[{id:sharpness,lvl:5}]}"
 ```
 
-Players will only see the buttons they have permission for!
+👀 Players will only see buttons they have permission for!
 
-## PlaceholderAPI Support
+## 🔁 PlaceholderAPI Support
 
-All text fields (title, content, messages, commands) support PlaceholderAPI placeholders. For a complete
-list, see [PlaceholderAPI](https://github.com/AllayMC/PlaceholderAPI).
+All text fields (**title**, **content**, **messages**, **commands**) support
+🔧 **PlaceholderAPI** placeholders.
 
-## Example Use Cases
+📚 For a complete list, see:
+👉 [https://github.com/AllayMC/PlaceholderAPI](https://github.com/AllayMC/PlaceholderAPI)
 
-### Teleport Menu
+## 💡 Example Use Cases
+
+### 🚀 Teleport Menu
 
 ```yaml
 title: "Teleport Menu"
 content: "Choose a destination:"
-
-buttons:
-  - text: "Spawn"
-    messages:
-      - "§aTeleporting to spawn..."
-    commands:
-      - "tp \"{player_name}\" 0 100 0"
-
-  - text: "PvP Arena"
-    messages:
-      - "§cEntering PvP Arena!"
-      - "§7Good luck, {player_name}!"
-    commands:
-      - "tp \"{player_name}\" 1000 80 1000"
-      - "gamemode adventure \"{player_name}\""
 ```
 
-### Info Menu (Messages Only)
+### 📊 Info Menu (Messages Only)
 
 ```yaml
 title: "Player Information"
 content: "View your statistics"
-
-buttons:
-  - text: "Show Stats"
-    messages:
-      - "§e========== Your Stats =========="
-      - "§bName: §f{player_name}"
-      - "§bPosition: §fX={x} Y={y} Z={z}"
-      - "§bDimension: §f{dimension}"
-      - "§bGame Mode: §f{game_mode}"
-      - "§bExp Level: §f{exp_level}"
-      - "§bPing: §f{ping}ms"
-      - "§e================================"
 ```
 
-## Reloading Menus
+## ♻️ Reloading Menus
 
-There are two ways to reload menu configurations without restarting the server:
-
-### Method 1: Using `/menu reload` (Recommended)
+### ✅ Method 1: `/menu reload` (Recommended)
 
 ```
 /menu reload
 ```
 
-### Method 2: Using server reload command
+### ⚠️ Method 2: Server reload
 
 ```
 /reload plugin Aenu
 ```
 
-## Listing Available Menus
+## 📜 Listing Available Menus
 
-Players can use `/menu list` to see all menus they have permission to access:
+Use `/menu list` to view all accessible menus:
 
 ```
 /menu list
 ```
 
-This will display a formatted list showing:
-- The number of accessible menus
-- Menu names with usage commands
-- Only menus the player has permission to open
+📋 Output includes:
 
-Example output:
-```
-You can access 3 menu(s):
-  ▪ example - /menu example
-  ▪ shop - /menu shop
-  ▪ teleport - /menu teleport
-```
+- Number of accessible menus
+- Menu names and commands
+- Permission-based filtering
 
-If a menu has a permission requirement, it will only appear in the list for players who have that permission.
+## 📄 License
 
-## License
-
-This project is open source and available under the MIT License.
+🪪 This project is open source and released under the **MIT License**.
