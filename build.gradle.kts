@@ -14,7 +14,7 @@ java {
 }
 
 allay {
-    api = "0.19.0-SNAPSHOT"
+    api = "0.18.0"
 
     plugin {
         entrance = ".Aenu"
