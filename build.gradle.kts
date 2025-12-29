@@ -5,7 +5,7 @@ plugins {
 
 group = "me.daoge.aenu"
 description = "A configurable menu plugin for AllayMC with PlaceholderAPI support"
-version = "0.1.0"
+version = "0.2.0"
 
 java {
     toolchain {
@@ -14,7 +14,7 @@ java {
 }
 
 allay {
-    api = "0.19.0"
+    api = "0.20.0-SNAPSHOT"
 
     plugin {
         entrance = ".Aenu"
