@@ -17,6 +17,7 @@ import org.allaymc.api.item.type.ItemTypeGetter;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.player.Player;
 import org.allaymc.api.registry.Registries;
+import org.allaymc.api.server.Server;
 import org.allaymc.papi.PlaceholderAPI;
 import org.intellij.lang.annotations.Language;
 import org.yaml.snakeyaml.DumperOptions;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manages menu configurations and handles menu display
@@ -239,8 +241,7 @@ public class MenuManager {
                       - text: "Open Form Menu"
                         item: "minecraft:paper"
                         slot: 16
-                        commands:
-                          - "menu open example"
+                        jump: "example"
 
                       - text: "§c[Admin] Heal"
                         item: "minecraft:golden_apple"
@@ -309,14 +310,12 @@ public class MenuManager {
                       - text: "Open Form Menu"
                         item: "minecraft:paper"
                         slot: 28
-                        commands:
-                          - "menu open example"
+                        jump: "example"
 
                       - text: "Open Chest Menu"
                         item: "minecraft:barrel"
                         slot: 30
-                        commands:
-                          - "menu open example_chest"
+                        jump: "example_chest"
 
                       - text: "VIP Shop"
                         item: "minecraft:emerald"
@@ -333,8 +332,7 @@ public class MenuManager {
                         permission: "aenu.menu.admin"
                         messages:
                           - "§cAdmin tools opened."
-                        commands:
-                          - "menu open admin_menu"
+                        jump: "admin_menu"
 
                       - text: "Previous Page"
                         item: "minecraft:arrow"
@@ -434,6 +432,13 @@ public class MenuManager {
         SimpleForm form = Forms.simple()
                 .title(title)
                 .content(content);
+        AtomicReference<String> pendingJump = new AtomicReference<>();
+        form.onClose(reason -> {
+            String target = pendingJump.getAndSet(null);
+            if (target != null) {
+                jumpToMenu(player, target);
+            }
+        });
 
         // Add buttons (only those the player has permission to see)
         if (config.getButtons() != null) {
@@ -444,6 +449,7 @@ public class MenuManager {
                 }
 
                 String buttonText = resolvePlaceholders(player, papi, buttonConfig.getText());
+                String jumpTarget = getJumpTarget(buttonConfig);
 
                 Button button;
 
@@ -465,31 +471,36 @@ public class MenuManager {
 
                     // Then, execute commands
                     executeCommands(player, buttonConfig.getCommands());
+
+                    if (jumpTarget != null) {
+                        pendingJump.set(jumpTarget);
+                    }
                 });
             }
         }
 
         // Show the form to the player
-        var controller = player.getController();
-        if (controller == null) {
-            plugin.getPluginLogger().warn("Cannot open form menu for a fake player");
-            return false;
-        }
-        controller.viewForm(form);
+        player.getController().viewForm(form);
         return true;
     }
 
     private boolean showChestMenu(EntityPlayer player, String menuName, MenuConfig config, MenuUiType uiType) {
         PlaceholderAPI papi = PlaceholderAPI.getAPI();
         Player controller = player.getController();
-        if (controller == null) {
-            plugin.getPluginLogger().warn("Cannot open chest menu for a fake player");
-            return false;
-        }
-
         FakeContainer container = uiType == MenuUiType.DOUBLE_CHEST
                 ? FakeContainerFactory.getFactory().createFakeDoubleChestContainer()
                 : FakeContainerFactory.getFactory().createFakeChestContainer();
+        AtomicReference<String> pendingJump = new AtomicReference<>();
+        container.addCloseListener(viewer -> {
+            String target = pendingJump.getAndSet(null);
+            if (target != null) {
+                // Chest ui needs time to close, so schedule the jump to the next tick
+                var server = Server.getInstance();
+                server.getScheduler().runLater(server, () -> {
+                    jumpToMenu(player, target);
+                });
+            }
+        });
 
         String title = resolvePlaceholders(player, papi, config.getTitle());
         if (!title.isEmpty()) {
@@ -535,11 +546,19 @@ public class MenuManager {
                 }
 
                 boolean hasActions = hasButtonActions(buttonConfig);
+                String jumpTarget = getJumpTarget(buttonConfig);
                 if (hasActions) {
                     container.setItemStackWithListener(slot, itemStack, () -> {
                         sendMessages(player, buttonConfig.getMessages());
                         executeCommands(player, buttonConfig.getCommands());
+                        if (jumpTarget != null) {
+                            pendingJump.set(jumpTarget);
+                        }
                         if (buttonConfig.isClose()) {
+                            container.removeViewer(controller);
+                            return;
+                        }
+                        if (jumpTarget != null) {
                             container.removeViewer(controller);
                         }
                     });
@@ -596,7 +615,17 @@ public class MenuManager {
     private boolean hasButtonActions(MenuButton buttonConfig) {
         return (buttonConfig.getMessages() != null && !buttonConfig.getMessages().isEmpty())
                 || (buttonConfig.getCommands() != null && !buttonConfig.getCommands().isEmpty())
-                || buttonConfig.isClose();
+                || buttonConfig.isClose()
+                || getJumpTarget(buttonConfig) != null;
+    }
+
+    private String getJumpTarget(MenuButton buttonConfig) {
+        String jump = buttonConfig.getJump();
+        if (jump == null) {
+            return null;
+        }
+        String target = jump.trim();
+        return target.isEmpty() ? null : target;
     }
 
     private String resolvePlaceholders(EntityPlayer player, PlaceholderAPI papi, String text) {
@@ -613,6 +642,26 @@ public class MenuManager {
             }
         }
         return -1;
+    }
+
+    private void jumpToMenu(EntityPlayer player, String menuName) {
+        String target = menuName == null ? null : menuName.trim();
+        if (target == null || target.isEmpty()) {
+            return;
+        }
+        if (!hasMenu(target)) {
+            player.sendMessage("§cMenu '" + target + "' does not exist!");
+            return;
+        }
+
+        if (!hasMenuPermission(player, target)) {
+            player.sendMessage("§cYou don't have permission to open menu '" + target + "'!");
+            return;
+        }
+
+        if (!showMenu(player, target)) {
+            player.sendMessage("§cFailed to open menu '" + target + "'!");
+        }
     }
 
     /**

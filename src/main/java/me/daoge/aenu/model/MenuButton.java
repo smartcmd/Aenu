@@ -61,6 +61,11 @@ public class MenuButton {
     private List<String> messages = new ArrayList<>();
 
     /**
+     * Optional menu name to jump to after the current menu is closed
+     */
+    private String jump;
+
+    /**
      * The list of commands to execute when this button is clicked
      * Commands support PlaceholderAPI placeholders which will be resolved before execution
      */

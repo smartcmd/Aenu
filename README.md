@@ -58,6 +58,7 @@ Each button supports the following fields:
 - 📜 **lore** *(optional, chest UI)* – List of lore lines
 - 📍 **slot** *(optional, chest UI)* – Slot index (0-26 for chest, 0-53 for double chest)
 - ❌ **close** *(optional, chest UI)* – Close the menu after click (default: false)
+- 🔀 **jump** *(optional)* – Menu name to open after the current menu closes
 - 🔑 **permission** *(optional)* – Permission required to see this button
 - 💬 **messages** *(optional)* – List of messages to send to the player
 - ⚡ **commands** *(optional)* – List of commands to execute
