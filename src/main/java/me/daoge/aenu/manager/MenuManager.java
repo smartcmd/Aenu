@@ -2,8 +2,10 @@ package me.daoge.aenu.manager;
 
 import lombok.Getter;
 import me.daoge.aenu.Aenu;
+import me.daoge.aenu.config.DefaultMenuConfigs;
 import me.daoge.aenu.model.MenuButton;
 import me.daoge.aenu.model.MenuConfig;
+import me.daoge.aenu.model.MenuUiType;
 import org.allaymc.api.container.FakeContainerFactory;
 import org.allaymc.api.container.interfaces.FakeContainer;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
@@ -19,7 +21,6 @@ import org.allaymc.api.player.Player;
 import org.allaymc.api.registry.Registries;
 import org.allaymc.api.server.Server;
 import org.allaymc.papi.PlaceholderAPI;
-import org.intellij.lang.annotations.Language;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -137,225 +138,9 @@ public class MenuManager {
             Path chestExampleFile = dataFolder.resolve("example_chest.yml");
             Path doubleChestExampleFile = dataFolder.resolve("example_double_chest.yml");
 
-            @Language("yml")
-            String exampleContent = """
-                    # Example menu configuration for Aenu
-                    # Menu name is the filename without .yml extension
-
-                    # Title of the menu
-                    title: "Example Menu"
-                    ui: "form"
-
-                    # Content/description text
-                    content: "Welcome {player_name}! Choose an option below:"
-
-                    # Optional: Permission required to open this menu
-                    # If not set, everyone can open it
-                    # permission: "aenu.menu.example"
-
-                    # List of buttons
-                    buttons:
-                      # Button with direct message (no commands needed!)
-                      - text: "Get Diamond"
-                        image:
-                          type: "path"
-                          data: "textures/items/diamond.png"
-                        messages:
-                          - "§aYou received a diamond!"
-                          - "§7Use it wisely, {player_name}!"
-                        commands:
-                          - "give \\"{player_name}\\" minecraft:diamond 1"
-
-                      # Button with only command (old way still works)
-                      - text: "Teleport to Spawn"
-                        commands:
-                          - "tp \\"{player_name}\\" 0 100 0"
-
-                      # Button with only messages (no commands)
-                      - text: "Show Info"
-                        messages:
-                          - "§e========== Player Info =========="
-                          - "§bName: §f{player_name}"
-                          - "§bPosition: §fX={x} Y={y} Z={z}"
-                          - "§bGame mode: §f{game_mode}"
-                          - "§bDimension: §f{dimension}"
-                          - "§bExp Level: §f{exp_level}"
-                          - "§e================================="
-
-                      # Button with permission requirement (only OPs can see)
-                      - text: "§c[Admin] Heal Me"
-                        permission: "aenu.button.heal"
-                        messages:
-                          - "§aHealing you now..."
-                          - "§7You have been fully healed!"
-                        commands:
-                          - "effect \\"{player_name}\\" instant_health 1 255"
-                          - "effect \\"{player_name}\\" saturation 1 255"
-                    """;
-
-            @Language("yml")
-            String chestExampleContent = """
-                    # Example chest menu configuration for Aenu
-                    # Menu name is the filename without .yml extension
-
-                    # Title of the menu
-                    title: "Quick Actions - {player_name}"
-                    ui: "chest"
-
-                    # Content is ignored for chest UI
-                    # content: "This is ignored in chest UI"
-
-                    # List of buttons
-                    buttons:
-                      - text: "Starter Kit"
-                        item: "minecraft:chest"
-                        slot: 10
-                        lore:
-                          - "§7A basic kit for new players"
-                          - "§eClick to claim"
-                        messages:
-                          - "§aStarter kit claimed!"
-                        commands:
-                          - 'give "{player_name}" minecraft:stone_sword 1'
-                          - 'give "{player_name}" minecraft:bread 16'
-
-                      - text: "Teleport to Spawn"
-                        item: "minecraft:ender_pearl"
-                        slot: 12
-                        commands:
-                          - 'tp "{player_name}" 0 100 0'
-
-                      - text: "Your Stats"
-                        item: "minecraft:book"
-                        slot: 14
-                        lore:
-                          - "§7Name: §f{player_name}"
-                          - "§7Level: §f{exp_level}"
-                          - "§7Game mode: §f{game_mode}"
-                        messages:
-                          - "§e========== Stats =========="
-                          - "§fX={x} Y={y} Z={z}"
-                          - "§fDimension: {dimension}"
-                          - "§e==========================="
-
-                      - text: "Open Form Menu"
-                        item: "minecraft:paper"
-                        slot: 16
-                        jump: "example"
-
-                      - text: "§c[Admin] Heal"
-                        item: "minecraft:golden_apple"
-                        slot: 22
-                        permission: "aenu.button.admin.heal"
-                        messages:
-                          - "§aHealing you now..."
-                        commands:
-                          - 'effect "{player_name}" instant_health 1 255'
-
-                      - text: "Close"
-                        item: "minecraft:barrier"
-                        slot: 26
-                        close: true
-                    """;
-
-            @Language("yml")
-            String doubleChestExampleContent = """
-                    # Example double chest menu configuration for Aenu
-                    # Menu name is the filename without .yml extension
-
-                    # Title of the menu
-                    title: "Server Hub - {player_name}"
-                    ui: "double_chest"
-
-                    # Content is ignored for chest UI
-                    # content: "This is ignored in chest UI"
-
-                    # List of buttons
-                    buttons:
-                      - text: "Daily Reward"
-                        item: "minecraft:chest"
-                        slot: 10
-                        lore:
-                          - "§7Claim once per day"
-                        messages:
-                          - "§aReward claimed!"
-                        commands:
-                          - 'give "{player_name}" minecraft:gold_ingot 5'
-
-                      - text: "Diamond Bundle"
-                        item: "minecraft:diamond"
-                        count: 3
-                        slot: 12
-                        messages:
-                          - "§bEnjoy your diamonds!"
-                        commands:
-                          - 'give "{player_name}" minecraft:diamond 3'
-
-                      - text: "Teleport to Spawn"
-                        item: "minecraft:ender_pearl"
-                        slot: 14
-                        commands:
-                          - 'tp "{player_name}" 0 100 0'
-
-                      - text: "Player Info"
-                        item: "minecraft:book"
-                        slot: 16
-                        lore:
-                          - "§7Name: §f{player_name}"
-                          - "§7Pos: §fX={x} Y={y} Z={z}"
-                          - "§7World: §f{dimension}"
-                        messages:
-                          - "§eLevel: §f{exp_level}"
-
-                      - text: "Open Form Menu"
-                        item: "minecraft:paper"
-                        slot: 28
-                        jump: "example"
-
-                      - text: "Open Chest Menu"
-                        item: "minecraft:barrel"
-                        slot: 30
-                        jump: "example_chest"
-
-                      - text: "VIP Shop"
-                        item: "minecraft:emerald"
-                        slot: 32
-                        permission: "aenu.menu.vip"
-                        lore:
-                          - "§6VIP only"
-                        commands:
-                          - 'give "{player_name}" minecraft:emerald 5'
-
-                      - text: "Admin Tools"
-                        item: "minecraft:command_block"
-                        slot: 34
-                        permission: "aenu.menu.admin"
-                        messages:
-                          - "§cAdmin tools opened."
-                        jump: "admin_menu"
-
-                      - text: "Previous Page"
-                        item: "minecraft:arrow"
-                        slot: 45
-                        messages:
-                          - "§eNo previous page"
-
-                      - text: "Next Page"
-                        item: "minecraft:arrow"
-                        slot: 53
-                        messages:
-                          - "§eNo next page"
-
-                      - text: "Close"
-                        item: "minecraft:barrier"
-                        slot: 49
-                        close: true
-                    """;
-
-
-            Files.writeString(exampleFile, exampleContent);
-            Files.writeString(chestExampleFile, chestExampleContent);
-            Files.writeString(doubleChestExampleFile, doubleChestExampleContent);
+            Files.writeString(exampleFile, DefaultMenuConfigs.FORM);
+            Files.writeString(chestExampleFile, DefaultMenuConfigs.CHEST);
+            Files.writeString(doubleChestExampleFile, DefaultMenuConfigs.DOUBLE_CHEST);
             plugin.getPluginLogger().info("Created example menus at: {}, {}, {}", exampleFile, chestExampleFile, doubleChestExampleFile);
         } catch (IOException e) {
             plugin.getPluginLogger().error("Failed to create example menu", e);
@@ -775,11 +560,5 @@ public class MenuManager {
             case "double_chest", "doublechest", "double" -> MenuUiType.DOUBLE_CHEST;
             default -> MenuUiType.FORM;
         };
-    }
-
-    private enum MenuUiType {
-        FORM,
-        CHEST,
-        DOUBLE_CHEST
     }
 }
