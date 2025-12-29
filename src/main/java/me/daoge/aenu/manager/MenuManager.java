@@ -197,7 +197,7 @@ public class MenuManager {
                     # Menu name is the filename without .yml extension
 
                     # Title of the menu
-                    title: "Chest Menu"
+                    title: "Quick Actions - {player_name}"
                     ui: "chest"
 
                     # Content is ignored for chest UI
@@ -205,23 +205,51 @@ public class MenuManager {
 
                     # List of buttons
                     buttons:
-                      - text: "Get Diamond"
-                        item: "minecraft:diamond"
+                      - text: "Starter Kit"
+                        item: "minecraft:chest"
                         slot: 10
                         lore:
-                          - "§7Click to receive a diamond"
+                          - "§7A basic kit for new players"
+                          - "§eClick to claim"
                         messages:
-                          - "§aYou received a diamond!"
+                          - "§aStarter kit claimed!"
                         commands:
-                          - "give \\"{player_name}\\" minecraft:diamond 1"
+                          - 'give "{player_name}" minecraft:stone_sword 1'
+                          - 'give "{player_name}" minecraft:bread 16'
 
                       - text: "Teleport to Spawn"
                         item: "minecraft:ender_pearl"
-                        slot: 13
-                        lore:
-                          - "§7Click to teleport to spawn"
+                        slot: 12
                         commands:
-                          - "tp \\"{player_name}\\" 0 100 0"
+                          - 'tp "{player_name}" 0 100 0'
+
+                      - text: "Your Stats"
+                        item: "minecraft:book"
+                        slot: 14
+                        lore:
+                          - "§7Name: §f{player_name}"
+                          - "§7Level: §f{exp_level}"
+                          - "§7Game mode: §f{game_mode}"
+                        messages:
+                          - "§e========== Stats =========="
+                          - "§fX={x} Y={y} Z={z}"
+                          - "§fDimension: {dimension}"
+                          - "§e==========================="
+
+                      - text: "Open Form Menu"
+                        item: "minecraft:paper"
+                        slot: 16
+                        commands:
+                          - "menu open example"
+
+                      - text: "§c[Admin] Heal"
+                        item: "minecraft:golden_apple"
+                        slot: 22
+                        permission: "aenu.button.admin.heal"
+                        messages:
+                          - "§aHealing you now..."
+                        commands:
+                          - 'effect "{player_name}" instant_health 1 255'
 
                       - text: "Close"
                         item: "minecraft:barrier"
@@ -235,7 +263,7 @@ public class MenuManager {
                     # Menu name is the filename without .yml extension
 
                     # Title of the menu
-                    title: "Double Chest Menu"
+                    title: "Server Hub - {player_name}"
                     ui: "double_chest"
 
                     # Content is ignored for chest UI
@@ -243,21 +271,70 @@ public class MenuManager {
 
                     # List of buttons
                     buttons:
-                      - text: "Get Diamond"
-                        item: "minecraft:diamond"
+                      - text: "Daily Reward"
+                        item: "minecraft:chest"
                         slot: 10
                         lore:
-                          - "§7Click to receive a diamond"
+                          - "§7Claim once per day"
                         messages:
-                          - "§aYou received a diamond!"
+                          - "§aReward claimed!"
                         commands:
-                          - "give "{player_name}" minecraft:diamond 1"
+                          - 'give "{player_name}" minecraft:gold_ingot 5'
+
+                      - text: "Diamond Bundle"
+                        item: "minecraft:diamond"
+                        count: 3
+                        slot: 12
+                        messages:
+                          - "§bEnjoy your diamonds!"
+                        commands:
+                          - 'give "{player_name}" minecraft:diamond 3'
 
                       - text: "Teleport to Spawn"
                         item: "minecraft:ender_pearl"
-                        slot: 13
+                        slot: 14
                         commands:
-                          - "tp "{player_name}" 0 100 0"
+                          - 'tp "{player_name}" 0 100 0'
+
+                      - text: "Player Info"
+                        item: "minecraft:book"
+                        slot: 16
+                        lore:
+                          - "§7Name: §f{player_name}"
+                          - "§7Pos: §fX={x} Y={y} Z={z}"
+                          - "§7World: §f{dimension}"
+                        messages:
+                          - "§eLevel: §f{exp_level}"
+
+                      - text: "Open Form Menu"
+                        item: "minecraft:paper"
+                        slot: 28
+                        commands:
+                          - "menu open example"
+
+                      - text: "Open Chest Menu"
+                        item: "minecraft:barrel"
+                        slot: 30
+                        commands:
+                          - "menu open example_chest"
+
+                      - text: "VIP Shop"
+                        item: "minecraft:emerald"
+                        slot: 32
+                        permission: "aenu.menu.vip"
+                        lore:
+                          - "§6VIP only"
+                        commands:
+                          - 'give "{player_name}" minecraft:emerald 5'
+
+                      - text: "Admin Tools"
+                        item: "minecraft:command_block"
+                        slot: 34
+                        permission: "aenu.menu.admin"
+                        messages:
+                          - "§cAdmin tools opened."
+                        commands:
+                          - "menu open admin_menu"
 
                       - text: "Previous Page"
                         item: "minecraft:arrow"
