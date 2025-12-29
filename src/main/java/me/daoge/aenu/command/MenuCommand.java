@@ -33,13 +33,7 @@ public class MenuCommand extends Command {
                     // Parameters are retrieved by index using getResult()
                     String menuName = context.getResult(1);
 
-                    // Get the menu manager
                     Aenu plugin = Aenu.getInstance();
-                    if (plugin == null || plugin.getMenuManager() == null) {
-                        sender.sendMessage("§cMenu plugin is not properly loaded!");
-                        return context.fail();
-                    }
-
                     // Check if menu exists
                     if (!plugin.getMenuManager().hasMenu(menuName)) {
                         sender.sendMessage("§cMenu '" + menuName + "' does not exist!");
@@ -80,14 +74,8 @@ public class MenuCommand extends Command {
                 .key("list")
                 .permission("aenu.command.menu.list")
                 .exec((context, sender) -> {
-                    Aenu plugin = Aenu.getInstance();
-                    if (plugin == null || plugin.getMenuManager() == null) {
-                        sender.sendMessage("§cMenu plugin is not properly loaded!");
-                        return context.fail();
-                    }
-
                     // Get accessible menus for this player
-                    var accessibleMenus = plugin.getMenuManager().getAccessibleMenus(sender);
+                    var accessibleMenus = Aenu.getInstance().getMenuManager().getAccessibleMenus(sender);
 
                     if (accessibleMenus.isEmpty()) {
                         sender.sendMessage("§eNo menus available for you.");
