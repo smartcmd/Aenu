@@ -133,6 +133,7 @@ public class MenuManager {
         try {
             Path exampleFile = dataFolder.resolve("example.yml");
             Path chestExampleFile = dataFolder.resolve("example_chest.yml");
+            Path doubleChestExampleFile = dataFolder.resolve("example_double_chest.yml");
 
             @Language("yml")
             String exampleContent = """
@@ -228,9 +229,59 @@ public class MenuManager {
                         close: true
                     """;
 
+            @Language("yml")
+            String doubleChestExampleContent = """
+                    # Example double chest menu configuration for Aenu
+                    # Menu name is the filename without .yml extension
+
+                    # Title of the menu
+                    title: "Double Chest Menu"
+                    ui: "double_chest"
+
+                    # Content is ignored for chest UI
+                    # content: "This is ignored in chest UI"
+
+                    # List of buttons
+                    buttons:
+                      - text: "Get Diamond"
+                        item: "minecraft:diamond"
+                        slot: 10
+                        lore:
+                          - "§7Click to receive a diamond"
+                        messages:
+                          - "§aYou received a diamond!"
+                        commands:
+                          - "give "{player_name}" minecraft:diamond 1"
+
+                      - text: "Teleport to Spawn"
+                        item: "minecraft:ender_pearl"
+                        slot: 13
+                        commands:
+                          - "tp "{player_name}" 0 100 0"
+
+                      - text: "Previous Page"
+                        item: "minecraft:arrow"
+                        slot: 45
+                        messages:
+                          - "§eNo previous page"
+
+                      - text: "Next Page"
+                        item: "minecraft:arrow"
+                        slot: 53
+                        messages:
+                          - "§eNo next page"
+
+                      - text: "Close"
+                        item: "minecraft:barrier"
+                        slot: 49
+                        close: true
+                    """;
+
+
             Files.writeString(exampleFile, exampleContent);
             Files.writeString(chestExampleFile, chestExampleContent);
-            plugin.getPluginLogger().info("Created example menus at: {}, {}", exampleFile, chestExampleFile);
+            Files.writeString(doubleChestExampleFile, doubleChestExampleContent);
+            plugin.getPluginLogger().info("Created example menus at: {}, {}, {}", exampleFile, chestExampleFile, doubleChestExampleFile);
         } catch (IOException e) {
             plugin.getPluginLogger().error("Failed to create example menu", e);
         }

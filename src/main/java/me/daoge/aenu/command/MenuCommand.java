@@ -26,6 +26,7 @@ public class MenuCommand extends Command {
     public void prepareCommandTree(CommandTree tree) {
         tree.getRoot()
                 .key("open")
+                .permission("aenu.command.menu.open")
                 .str("menu_name")
                 .exec((context, sender) -> {
                     // The sender parameter is automatically typed as EntityPlayer by SenderType.PLAYER
@@ -42,7 +43,12 @@ public class MenuCommand extends Command {
                     // Check if menu exists
                     if (!plugin.getMenuManager().hasMenu(menuName)) {
                         sender.sendMessage("§cMenu '" + menuName + "' does not exist!");
-                        sender.sendMessage("§7Available menus: " + String.join(", ", plugin.getMenuManager().getMenus().keySet()));
+                        var accessibleMenus = plugin.getMenuManager().getAccessibleMenus(sender);
+                        if (accessibleMenus.isEmpty()) {
+                            sender.sendMessage("§7No menus available for you.");
+                        } else {
+                            sender.sendMessage("§7Available menus: " + String.join(", ", accessibleMenus));
+                        }
                         return context.fail();
                     }
 
@@ -63,7 +69,7 @@ public class MenuCommand extends Command {
                 }, SenderType.ACTUAL_PLAYER)
                 .root()
                 .key("reload")
-                .permission("aenu.command.reload")
+                .permission("aenu.command.menu.reload")
                 .exec(context -> {
                     context.getSender().sendMessage("Reloading Aenu...");
                     Aenu.getInstance().reload();
@@ -72,6 +78,7 @@ public class MenuCommand extends Command {
                 })
                 .root()
                 .key("list")
+                .permission("aenu.command.menu.list")
                 .exec((context, sender) -> {
                     Aenu plugin = Aenu.getInstance();
                     if (plugin == null || plugin.getMenuManager() == null) {
@@ -91,7 +98,7 @@ public class MenuCommand extends Command {
 
                     // List all accessible menus
                     for (String menuName : accessibleMenus) {
-                        sender.sendMessage("§a  ▪ §f" + menuName + " §7- §e/menu " + menuName);
+                        sender.sendMessage("§a  ▪ §f" + menuName + " §7- §e/menu open " + menuName);
                     }
                     return context.success();
                 }, SenderType.ACTUAL_PLAYER);

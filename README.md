@@ -5,7 +5,7 @@
 ## ✨ Features
 
 - 🧩 **SimpleForm Menus** – Clean, intuitive menu interface
-- **Chest Menus** – FakeChest/FakeDoubleChest UI support
+- 📦 **Chest Menus** – FakeChest/FakeDoubleChest UI support
 - 📝 **YAML Configuration** – Easy-to-edit menu files
 - 🔁 **PlaceholderAPI Integration** – Use placeholders in titles, content, commands, and messages
 - 💬 **Direct Messages** – Send messages directly to players without using commands
@@ -20,7 +20,7 @@
 2. 📁 Place it in your server's `plugins` folder
 3. ✅ Ensure **PlaceholderAPI** plugin is also installed
 4. 🔄 Restart your server
-5. 📄 Example menu configurations will be automatically generated at `plugins/Aenu/example.yml` and `plugins/Aenu/example_chest.yml`
+5. 📄 Example menu configurations will be automatically generated at `plugins/Aenu/example.yml`, `plugins/Aenu/example_chest.yml`, and `plugins/Aenu/example_double_chest.yml`
 6. ✏️ Edit or create your own menu files in the `plugins/Aenu/` folder
 7. 🔁 Use `/menu reload` to reload menus after making changes
 
@@ -42,7 +42,7 @@ Each file represents **one menu**.
 Each menu supports the following fields:
 
 - 🏷️ **title** – The menu title
-- **ui** *(optional)* – UI type: `form`, `chest`, or `double_chest` (default: `form`)
+- 🪟 **ui** *(optional)* – UI type: `form`, `chest`, or `double_chest` (default: `form`)
 - 📜 **content** – The menu description text (form UI only)
 - 🔐 **permission** *(optional)* – Permission required to open the menu
 - 🔘 **buttons** – List of buttons in the menu
@@ -52,12 +52,12 @@ Each menu supports the following fields:
 Each button supports the following fields:
 
 - 📝 **text** – The button display text
-- **item** *(optional, chest UI)* – Item identifier like `minecraft:diamond`
-- **count** *(optional, chest UI)* – Item count (default: 1)
-- **meta** *(optional, chest UI)* – Item meta/damage value (default: 0)
-- **lore** *(optional, chest UI)* – List of lore lines
-- **slot** *(optional, chest UI)* – Slot index (0-26 for chest, 0-53 for double chest)
-- **close** *(optional, chest UI)* – Close the menu after click (default: false)
+- 📦 **item** *(optional, chest UI)* – Item identifier like `minecraft:diamond`
+- #️⃣ **count** *(optional, chest UI)* – Item count (default: 1)
+- 🧷 **meta** *(optional, chest UI)* – Item meta/damage value (default: 0)
+- 📜 **lore** *(optional, chest UI)* – List of lore lines
+- 📍 **slot** *(optional, chest UI)* – Slot index (0-26 for chest, 0-53 for double chest)
+- ❌ **close** *(optional, chest UI)* – Close the menu after click (default: false)
 - 🔑 **permission** *(optional)* – Permission required to see this button
 - 💬 **messages** *(optional)* – List of messages to send to the player
 - ⚡ **commands** *(optional)* – List of commands to execute
