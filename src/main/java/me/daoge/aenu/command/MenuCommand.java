@@ -1,6 +1,7 @@
 package me.daoge.aenu.command;
 
 import me.daoge.aenu.Aenu;
+import me.daoge.aenu.i18n.TranslationKeys;
 import org.allaymc.api.command.Command;
 import org.allaymc.api.command.SenderType;
 import org.allaymc.api.command.tree.CommandTree;
@@ -14,7 +15,7 @@ import java.util.Set;
 public class MenuCommand extends Command {
 
     public MenuCommand() {
-        super("menu", "Open a menu", "aenu.command.menu");
+        super("menu", TranslationKeys.COMMAND_MENU_DESCRIPTION, "aenu.command.menu");
         OpPermissionCalculator.NON_OP_PERMISSIONS.addAll(Set.of(
                 "aenu.command.menu",
                 "aenu.command.menu.open",
@@ -36,26 +37,26 @@ public class MenuCommand extends Command {
                     Aenu plugin = Aenu.getInstance();
                     // Check if menu exists
                     if (!plugin.getMenuManager().hasMenu(menuName)) {
-                        sender.sendMessage("§cMenu '" + menuName + "' does not exist!");
+                        sender.sendTranslatable(TranslationKeys.COMMAND_MENU_NOT_FOUND, menuName);
                         var accessibleMenus = plugin.getMenuManager().getAccessibleMenus(sender);
                         if (accessibleMenus.isEmpty()) {
-                            sender.sendMessage("§7No menus available for you.");
+                            sender.sendTranslatable(TranslationKeys.COMMAND_MENU_NO_MENUS);
                         } else {
-                            sender.sendMessage("§7Available menus: " + String.join(", ", accessibleMenus));
+                            sender.sendTranslatable(TranslationKeys.COMMAND_MENU_AVAILABLE, String.join(", ", accessibleMenus));
                         }
                         return context.fail();
                     }
 
                     // Check menu permission
                     if (!plugin.getMenuManager().hasMenuPermission(sender, menuName)) {
-                        sender.sendMessage("§cYou don't have permission to open this menu!");
+                        sender.sendTranslatable(TranslationKeys.COMMAND_MENU_NO_PERMISSION);
                         return context.fail();
                     }
 
                     // Show the menu
                     boolean success = plugin.getMenuManager().showMenu(sender, menuName);
                     if (!success) {
-                        sender.sendMessage("§cFailed to open menu '" + menuName + "'!");
+                        sender.sendTranslatable(TranslationKeys.COMMAND_MENU_OPEN_FAILED, menuName);
                         return context.fail();
                     }
 
@@ -65,9 +66,12 @@ public class MenuCommand extends Command {
                 .key("reload")
                 .permission("aenu.command.menu.reload")
                 .exec(context -> {
-                    context.getSender().sendMessage("Reloading Aenu...");
+                    context.getSender().sendTranslatable(TranslationKeys.COMMAND_MENU_RELOAD_START);
                     Aenu.getInstance().reload();
-                    context.getSender().sendMessage("Aenu has been reloaded! Loaded " + Aenu.getInstance().getMenuManager().getMenuCount() + " menus.");
+                    context.getSender().sendTranslatable(
+                            TranslationKeys.COMMAND_MENU_RELOAD_DONE,
+                            Aenu.getInstance().getMenuManager().getMenuCount()
+                    );
                     return context.success();
                 })
                 .root()
@@ -78,15 +82,15 @@ public class MenuCommand extends Command {
                     var accessibleMenus = Aenu.getInstance().getMenuManager().getAccessibleMenus(sender);
 
                     if (accessibleMenus.isEmpty()) {
-                        sender.sendMessage("§eNo menus available for you.");
+                        sender.sendTranslatable(TranslationKeys.COMMAND_MENU_LIST_EMPTY);
                         return context.success();
                     }
 
-                    sender.sendMessage("§7You can access §f" + accessibleMenus.size() + "§7 menu(s):");
+                    sender.sendTranslatable(TranslationKeys.COMMAND_MENU_LIST_HEADER, accessibleMenus.size());
 
                     // List all accessible menus
                     for (String menuName : accessibleMenus) {
-                        sender.sendMessage("§a  ▪ §f" + menuName + " §7- §e/menu open " + menuName);
+                        sender.sendTranslatable(TranslationKeys.COMMAND_MENU_LIST_ITEM, menuName);
                     }
                     return context.success();
                 }, SenderType.ACTUAL_PLAYER);

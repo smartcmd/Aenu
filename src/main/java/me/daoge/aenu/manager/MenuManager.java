@@ -3,6 +3,7 @@ package me.daoge.aenu.manager;
 import lombok.Getter;
 import me.daoge.aenu.Aenu;
 import me.daoge.aenu.config.DefaultMenuConfigs;
+import me.daoge.aenu.i18n.TranslationKeys;
 import me.daoge.aenu.model.MenuButton;
 import me.daoge.aenu.model.MenuConfig;
 import me.daoge.aenu.model.MenuUiType;
@@ -435,17 +436,17 @@ public class MenuManager {
             return;
         }
         if (!hasMenu(target)) {
-            player.sendMessage("§cMenu '" + target + "' does not exist!");
+            player.sendTranslatable(TranslationKeys.COMMAND_MENU_NOT_FOUND, target);
             return;
         }
 
         if (!hasMenuPermission(player, target)) {
-            player.sendMessage("§cYou don't have permission to open menu '" + target + "'!");
+            player.sendTranslatable(TranslationKeys.COMMAND_MENU_NO_PERMISSION_TARGET, target);
             return;
         }
 
         if (!showMenu(player, target)) {
-            player.sendMessage("§cFailed to open menu '" + target + "'!");
+            player.sendTranslatable(TranslationKeys.COMMAND_MENU_OPEN_FAILED, target);
         }
     }
 

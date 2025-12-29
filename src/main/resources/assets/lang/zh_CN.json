@@ -1,0 +1,14 @@
+{
+  "aenu:command.menu.description": "打开一个菜单",
+  "aenu:command.menu.not_found": "§c菜单 '%1' 不存在！",
+  "aenu:command.menu.no_menus": "§7你没有可用的菜单。",
+  "aenu:command.menu.available": "§7可用菜单: %1",
+  "aenu:command.menu.no_permission": "§c你没有权限打开这个菜单！",
+  "aenu:command.menu.no_permission_target": "§c你没有权限打开菜单 '%1'！",
+  "aenu:command.menu.open_failed": "§c无法打开菜单 '%1'！",
+  "aenu:command.menu.reload.start": "正在重新加载 Aenu...",
+  "aenu:command.menu.reload.done": "Aenu 已重新加载！共加载 %1 个菜单。",
+  "aenu:command.menu.list.empty": "§e你没有可用的菜单。",
+  "aenu:command.menu.list.header": "§7你可以访问 §f%1§7 个菜单：",
+  "aenu:command.menu.list.item": "§a  ▪ §f%1 §7- §e/menu open %1"
+}

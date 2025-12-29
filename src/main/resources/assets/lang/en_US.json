@@ -1,0 +1,14 @@
+{
+  "aenu:command.menu.description": "Open a menu",
+  "aenu:command.menu.not_found": "§cMenu '%1' does not exist!",
+  "aenu:command.menu.no_menus": "§7No menus available for you.",
+  "aenu:command.menu.available": "§7Available menus: %1",
+  "aenu:command.menu.no_permission": "§cYou don't have permission to open this menu!",
+  "aenu:command.menu.no_permission_target": "§cYou don't have permission to open menu '%1'!",
+  "aenu:command.menu.open_failed": "§cFailed to open menu '%1'!",
+  "aenu:command.menu.reload.start": "Reloading Aenu...",
+  "aenu:command.menu.reload.done": "Aenu has been reloaded! Loaded %1 menus.",
+  "aenu:command.menu.list.empty": "§eNo menus available for you.",
+  "aenu:command.menu.list.header": "§7You can access §f%1§7 menu(s):",
+  "aenu:command.menu.list.item": "§a  ▪ §f%1 §7- §e/menu open %1"
+}
