@@ -17,6 +17,36 @@ public class MenuButton {
     private String text;
 
     /**
+     * The item type identifier for chest UI buttons (e.g. "minecraft:diamond")
+     */
+    private String item = "minecraft:paper";
+
+    /**
+     * Optional item count for chest UI buttons
+     */
+    private int count = 1;
+
+    /**
+     * Optional item meta for chest UI buttons
+     */
+    private int meta = 0;
+
+    /**
+     * Optional item lore for chest UI buttons
+     */
+    private List<String> lore = new ArrayList<>();
+
+    /**
+     * Optional slot index for chest UI buttons
+     */
+    private Integer slot;
+
+    /**
+     * Whether to close the chest UI after clicking this button
+     */
+    private boolean close = false;
+
+    /**
      * Optional permission required to see and click this button
      * If set, only players with this permission can see this button
      * If null or empty, everyone can see the button

@@ -14,7 +14,7 @@ java {
 }
 
 allay {
-    api = "0.18.0"
+    api = "0.19.0"
 
     plugin {
         entrance = ".Aenu"
@@ -26,7 +26,7 @@ allay {
 
 dependencies {
     compileOnly(group = "org.projectlombok", name = "lombok", version = "1.18.34")
-    compileOnly(group = "org.allaymc", name = "papi", version = "0.1.1")
+    compileOnly(group = "org.allaymc", name = "papi", version = "0.1.2")
     compileOnly(group = "org.yaml", name = "snakeyaml", version = "2.2")
     annotationProcessor(group = "org.projectlombok", name = "lombok", version = "1.18.34")
 }

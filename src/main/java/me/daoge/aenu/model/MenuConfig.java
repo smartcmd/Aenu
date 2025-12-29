@@ -17,6 +17,11 @@ public class MenuConfig {
     private String title = "";
 
     /**
+     * The UI type of the menu: form, chest, or double_chest
+     */
+    private String ui = "form";
+
+    /**
      * The content/description text of the menu
      */
     private String content = "";

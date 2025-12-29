@@ -4,11 +4,18 @@ import lombok.Getter;
 import me.daoge.aenu.Aenu;
 import me.daoge.aenu.model.MenuButton;
 import me.daoge.aenu.model.MenuConfig;
+import org.allaymc.api.container.FakeContainerFactory;
+import org.allaymc.api.container.interfaces.FakeContainer;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.form.Forms;
 import org.allaymc.api.form.element.Button;
 import org.allaymc.api.form.element.ImageData;
 import org.allaymc.api.form.type.SimpleForm;
+import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.type.ItemType;
+import org.allaymc.api.item.type.ItemTypeGetter;
+import org.allaymc.api.item.type.ItemTypes;
+import org.allaymc.api.player.Player;
 import org.allaymc.api.registry.Registries;
 import org.allaymc.papi.PlaceholderAPI;
 import org.intellij.lang.annotations.Language;
@@ -23,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -124,6 +132,7 @@ public class MenuManager {
     private void createExampleMenu() {
         try {
             Path exampleFile = dataFolder.resolve("example.yml");
+            Path chestExampleFile = dataFolder.resolve("example_chest.yml");
 
             @Language("yml")
             String exampleContent = """
@@ -132,6 +141,7 @@ public class MenuManager {
 
                     # Title of the menu
                     title: "Example Menu"
+                    ui: "form"
 
                     # Content/description text
                     content: "Welcome {player_name}! Choose an option below:"
@@ -180,8 +190,47 @@ public class MenuManager {
                           - "effect \\"{player_name}\\" saturation 1 255"
                     """;
 
+            @Language("yml")
+            String chestExampleContent = """
+                    # Example chest menu configuration for Aenu
+                    # Menu name is the filename without .yml extension
+
+                    # Title of the menu
+                    title: "Chest Menu"
+                    ui: "chest"
+
+                    # Content is ignored for chest UI
+                    # content: "This is ignored in chest UI"
+
+                    # List of buttons
+                    buttons:
+                      - text: "Get Diamond"
+                        item: "minecraft:diamond"
+                        slot: 10
+                        lore:
+                          - "§7Click to receive a diamond"
+                        messages:
+                          - "§aYou received a diamond!"
+                        commands:
+                          - "give \\"{player_name}\\" minecraft:diamond 1"
+
+                      - text: "Teleport to Spawn"
+                        item: "minecraft:ender_pearl"
+                        slot: 13
+                        lore:
+                          - "§7Click to teleport to spawn"
+                        commands:
+                          - "tp \\"{player_name}\\" 0 100 0"
+
+                      - text: "Close"
+                        item: "minecraft:barrier"
+                        slot: 26
+                        close: true
+                    """;
+
             Files.writeString(exampleFile, exampleContent);
-            plugin.getPluginLogger().info("Created example menu at: {}", exampleFile);
+            Files.writeString(chestExampleFile, chestExampleContent);
+            plugin.getPluginLogger().info("Created example menus at: {}, {}", exampleFile, chestExampleFile);
         } catch (IOException e) {
             plugin.getPluginLogger().error("Failed to create example menu", e);
         }
@@ -239,10 +288,19 @@ public class MenuManager {
             return false;
         }
 
+        MenuUiType uiType = resolveUiType(config.getUi());
+        if (uiType != MenuUiType.FORM) {
+            return showChestMenu(player, menuName, config, uiType);
+        }
+
+        return showFormMenu(player, config);
+    }
+
+    private boolean showFormMenu(EntityPlayer player, MenuConfig config) {
         // Resolve placeholders in title and content
         PlaceholderAPI papi = PlaceholderAPI.getAPI();
-        String title = papi.setPlaceholders(player, config.getTitle());
-        String content = papi.setPlaceholders(player, config.getContent());
+        String title = resolvePlaceholders(player, papi, config.getTitle());
+        String content = resolvePlaceholders(player, papi, config.getContent());
 
         // Build the SimpleForm
         SimpleForm form = Forms.simple()
@@ -250,40 +308,183 @@ public class MenuManager {
                 .content(content);
 
         // Add buttons (only those the player has permission to see)
-        for (MenuButton buttonConfig : config.getButtons()) {
-            // Skip buttons the player doesn't have permission for
-            if (!hasButtonPermission(player, buttonConfig)) {
-                continue;
+        if (config.getButtons() != null) {
+            for (MenuButton buttonConfig : config.getButtons()) {
+                // Skip buttons the player doesn't have permission for
+                if (!hasButtonPermission(player, buttonConfig)) {
+                    continue;
+                }
+
+                String buttonText = resolvePlaceholders(player, papi, buttonConfig.getText());
+
+                Button button;
+
+                // Handle button image if present
+                if (buttonConfig.getImage() != null) {
+                    MenuButton.ImageConfig imageConfig = buttonConfig.getImage();
+                    ImageData.ImageType imageType = "url".equalsIgnoreCase(imageConfig.getType())
+                        ? ImageData.ImageType.URL
+                        : ImageData.ImageType.PATH;
+                    button = form.button(buttonText, imageType, imageConfig.getData());
+                } else {
+                    button = form.button(buttonText);
+                }
+
+                // Set button click handler
+                button.onClick(btn -> {
+                    // First, send messages to the player (if any)
+                    sendMessages(player, buttonConfig.getMessages());
+
+                    // Then, execute commands
+                    executeCommands(player, buttonConfig.getCommands());
+                });
             }
-
-            String buttonText = papi.setPlaceholders(player, buttonConfig.getText());
-
-            Button button;
-
-            // Handle button image if present
-            if (buttonConfig.getImage() != null) {
-                MenuButton.ImageConfig imageConfig = buttonConfig.getImage();
-                ImageData.ImageType imageType = "url".equalsIgnoreCase(imageConfig.getType())
-                    ? ImageData.ImageType.URL
-                    : ImageData.ImageType.PATH;
-                button = form.button(buttonText, imageType, imageConfig.getData());
-            } else {
-                button = form.button(buttonText);
-            }
-
-            // Set button click handler
-            button.onClick(btn -> {
-                // First, send messages to the player (if any)
-                sendMessages(player, buttonConfig.getMessages());
-
-                // Then, execute commands
-                executeCommands(player, buttonConfig.getCommands());
-            });
         }
 
         // Show the form to the player
-        player.getController().viewForm(form);
+        var controller = player.getController();
+        if (controller == null) {
+            plugin.getPluginLogger().warn("Cannot open form menu for a fake player");
+            return false;
+        }
+        controller.viewForm(form);
         return true;
+    }
+
+    private boolean showChestMenu(EntityPlayer player, String menuName, MenuConfig config, MenuUiType uiType) {
+        PlaceholderAPI papi = PlaceholderAPI.getAPI();
+        Player controller = player.getController();
+        if (controller == null) {
+            plugin.getPluginLogger().warn("Cannot open chest menu for a fake player");
+            return false;
+        }
+
+        FakeContainer container = uiType == MenuUiType.DOUBLE_CHEST
+                ? FakeContainerFactory.getFactory().createFakeDoubleChestContainer()
+                : FakeContainerFactory.getFactory().createFakeChestContainer();
+
+        String title = resolvePlaceholders(player, papi, config.getTitle());
+        if (!title.isEmpty()) {
+            container.setCustomName(title);
+        }
+
+        int size = uiType == MenuUiType.DOUBLE_CHEST ? 54 : 27;
+        boolean[] usedSlots = new boolean[size];
+        int nextAutoSlot = 0;
+
+        if (config.getButtons() != null) {
+            for (MenuButton buttonConfig : config.getButtons()) {
+                if (!hasButtonPermission(player, buttonConfig)) {
+                    continue;
+                }
+
+                Integer preferredSlot = buttonConfig.getSlot();
+                int slot;
+                if (preferredSlot != null) {
+                    slot = preferredSlot;
+                    if (slot < 0 || slot >= size) {
+                        plugin.getPluginLogger().warn("Menu {} has button slot out of range: {}", menuName, slot);
+                        continue;
+                    }
+                    if (usedSlots[slot]) {
+                        plugin.getPluginLogger().warn("Menu {} has duplicate button slot: {}", menuName, slot);
+                        continue;
+                    }
+                } else {
+                    slot = findNextFreeSlot(usedSlots, nextAutoSlot);
+                    if (slot == -1) {
+                        plugin.getPluginLogger().warn("Menu {} has more buttons than slots", menuName);
+                        break;
+                    }
+                    nextAutoSlot = slot + 1;
+                }
+
+                usedSlots[slot] = true;
+
+                ItemStack itemStack = createButtonItemStack(player, papi, menuName, buttonConfig);
+                if (itemStack == null) {
+                    continue;
+                }
+
+                boolean hasActions = hasButtonActions(buttonConfig);
+                if (hasActions) {
+                    container.setItemStackWithListener(slot, itemStack, () -> {
+                        sendMessages(player, buttonConfig.getMessages());
+                        executeCommands(player, buttonConfig.getCommands());
+                        if (buttonConfig.isClose()) {
+                            container.removeViewer(controller);
+                        }
+                    });
+                } else {
+                    container.setItemStack(slot, itemStack);
+                }
+            }
+        }
+
+        container.addPlayer(controller);
+        return true;
+    }
+
+    private ItemStack createButtonItemStack(EntityPlayer player, PlaceholderAPI papi, String menuName, MenuButton buttonConfig) {
+        String itemName = buttonConfig.getItem();
+        if (itemName == null || itemName.isBlank()) {
+            itemName = "minecraft:paper";
+        } else if (!itemName.contains(":")) {
+            itemName = "minecraft:" + itemName;
+        }
+
+        ItemType<?> itemType;
+        try {
+            itemType = ItemTypeGetter.name(itemName).itemType();
+        } catch (IllegalArgumentException e) {
+            plugin.getPluginLogger().warn("Menu {} has invalid item name: {}", menuName, itemName);
+            itemType = ItemTypes.BARRIER;
+        }
+
+        if (itemType == ItemTypes.UNKNOWN) {
+            plugin.getPluginLogger().warn("Menu {} has unknown item name: {}", menuName, itemName);
+            itemType = ItemTypes.BARRIER;
+        }
+
+        int count = Math.max(1, buttonConfig.getCount());
+        int meta = Math.max(0, buttonConfig.getMeta());
+        ItemStack itemStack = itemType.createItemStack(count, meta);
+
+        String displayName = buttonConfig.getText();
+        if (displayName != null && !displayName.isEmpty()) {
+            itemStack.setCustomName(resolvePlaceholders(player, papi, displayName));
+        }
+
+        List<String> lore = buttonConfig.getLore();
+        if (lore != null && !lore.isEmpty()) {
+            itemStack.setLore(lore.stream()
+                    .map(line -> resolvePlaceholders(player, papi, line))
+                    .toList());
+        }
+
+        return itemStack;
+    }
+
+    private boolean hasButtonActions(MenuButton buttonConfig) {
+        return (buttonConfig.getMessages() != null && !buttonConfig.getMessages().isEmpty())
+                || (buttonConfig.getCommands() != null && !buttonConfig.getCommands().isEmpty())
+                || buttonConfig.isClose();
+    }
+
+    private String resolvePlaceholders(EntityPlayer player, PlaceholderAPI papi, String text) {
+        if (text == null) {
+            return "";
+        }
+        return papi.setPlaceholders(player, text);
+    }
+
+    private int findNextFreeSlot(boolean[] usedSlots, int startIndex) {
+        for (int i = startIndex; i < usedSlots.length; i++) {
+            if (!usedSlots[i]) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -385,5 +586,23 @@ public class MenuManager {
                 .map(Map.Entry::getKey)
                 .sorted()
                 .toList();
+    }
+
+    private MenuUiType resolveUiType(String ui) {
+        if (ui == null) {
+            return MenuUiType.FORM;
+        }
+
+        return switch (ui.trim().toLowerCase(Locale.ROOT)) {
+            case "chest" -> MenuUiType.CHEST;
+            case "double_chest", "doublechest", "double" -> MenuUiType.DOUBLE_CHEST;
+            default -> MenuUiType.FORM;
+        };
+    }
+
+    private enum MenuUiType {
+        FORM,
+        CHEST,
+        DOUBLE_CHEST
     }
 }
